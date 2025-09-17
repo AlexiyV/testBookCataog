@@ -1,0 +1,82 @@
+version: '3'
+
+networks:
+  default:
+    external:
+      name: bridge
+
+services:
+
+  nginx:
+    env_file: .env
+    image: nginx:stable
+    network_mode: bridge
+    restart: always
+    volumes:
+    - .:/var/www/test
+    - ./console/runtime/logs:/var/log/nginx
+    - ./docker/nginx/nginx-dev.conf:/etc/nginx/nginx.conf
+    depends_on:
+    - php
+    links:
+    - php
+    ports:
+    - ${PORT}:80
+
+  mysql:
+    env_file: .env
+    image: mariadb:latest
+    network_mode: bridge
+    #command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    volumes:
+      - ./.mysqldata:/var/lib/mysql
+      - ./docker/mysql:/etc/mysql/config.d
+
+  php:
+    env_file: .env
+    network_mode: bridge
+    restart: always
+    #entrypoint: /bin/sh -c /var/www/jsnow/docker/php/entrypoint.sh
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    volumes:
+    - .:/var/www/test
+    - ./console/runtime/logs:/var/log
+    links:
+#    - mail
+    - mysql
+    depends_on:
+    - mysql
+
+#  mail:
+#    env_file: .env
+#    network_mode: bridge
+#    restart: always
+#    image: catatnight/postfix
+#    volumes:
+#    - ./docker/mail/main.cf:/etc/postfix/main.cf
+
+  phpmyadmin:
+    env_file: .env
+    image: phpmyadmin/phpmyadmin
+    network_mode: bridge
+    environment:
+      PMA_ARBITRARY: 1
+      #PMA_HOST : mysql
+      PMA_USER: root
+      PMA_PASSWORD: 1234
+      UPLOAD_LIMIT: 50M
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: testDb
+    restart: always
+    ports:
+    - 8080:80
+    links:
+    - mysql:db
+    volumes:
+    - ./console/runtime/sessions:/sessions
+
