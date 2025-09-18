@@ -4,6 +4,7 @@ namespace frontend\models;
 
 use common\models\Author;
 use common\models\Book;
+use common\models\NotifyAuthorSubscribers;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
 
@@ -20,13 +21,13 @@ class BookForm extends Model
         ];
     }
 
-    public int | null $id = null;
-    public string | null $name = null;
-    public int | null $year = null;
-    public string | null $info = null;
-    public string | null $isbn = null;
-    public string | null $image = null;
-    public array | null $authors = null;
+    public $id;
+    public $name;
+    public $year;
+    public $info;
+    public $isbn;
+    public $image;
+    public $authors;
 
     public function rules()
     {
@@ -51,21 +52,30 @@ class BookForm extends Model
                 $book = new Book();
             }
 
+            $isNewRecord = $book->isNewRecord;
+
             $book->name = $this->name;
             $book->year = $this->year;
             $book->info = $this->info;
             $book->isbn = $this->isbn;
             $book->image = $this->image;
 
-            $book->unlinkAll('authors', true);
-            $authors = Author::find()
-                ->where(['id' => $this->authors])
-                ->all();
-            foreach ($authors as $author) {
-                $book->link('authors', $author);
-            }
+            if ($book->save()) {
+                $book->unlinkAll('authors', true);
+                $authors = Author::find()
+                    ->where(['id' => $this->authors])
+                    ->all();
+                foreach ($authors as $author) {
+                    $book->link('authors', $author);
+                }
 
-            return $book->save();
+                if ($isNewRecord) {
+                    NotifyAuthorSubscribers::notify($book->authors);
+                }
+
+                return true;
+            }
+            return false;
         }
         return false;
     }

@@ -5,13 +5,12 @@ namespace frontend\models;
 use common\models\Author;
 use common\models\Subscribe;
 use yii\base\Model;
-use yii\helpers\ArrayHelper;
 
 class SubscribeForm extends Model
 {
-    public int | null $id_author = null;
-    public string | null $name = null;
-    public string | null $phone = null;
+    public $id_author;
+    public $name;
+    public $phone;
 
     public const INIT_SCENARIO = 'init';
     public const SAVE_SCENARIO = 'save';
