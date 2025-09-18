@@ -9,12 +9,6 @@ class m250917_120241_books_tables extends Migration
      */
     public function safeUp()
     {
-//        * @property integer $id
-//        * @property string $name
-//        * @property integer $year
-//        * @property string $info
-//        * @property string $isbn
-//        * @property string $image
         $this->createTable('{{%book}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string(),
@@ -24,16 +18,11 @@ class m250917_120241_books_tables extends Migration
             'image' => $this->string(),
         ]);
 
-//        * @property integer $id
-//        * @property string $fio
         $this->createTable('{{%author}}', [
             'id' => $this->primaryKey(),
             'fio' => $this->string(),
         ]);
 
-//        * @property integer $id
-//        * @property integer $id_book
-//        * @property integer $id_author
         $this->createTable('{{%book_author_link}}', [
             'id' => $this->primaryKey(),
             'id_book' => $this->integer(),

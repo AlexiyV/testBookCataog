@@ -12,6 +12,8 @@ use yii\db\ActiveRecord;
  * @property string $info
  * @property string $isbn
  * @property string $image
+ *
+ * @property Author[] $authors
  */
 class Book extends ActiveRecord
 {

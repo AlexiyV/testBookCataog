@@ -8,6 +8,9 @@ use yii\db\ActiveRecord;
  * @property integer $id
  * @property integer $id_book
  * @property integer $id_author
+ *
+ * @property Book $book
+ * @property Author $author
  */
 class BookAuthorRelation extends ActiveRecord
 {

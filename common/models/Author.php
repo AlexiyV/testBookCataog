@@ -8,6 +8,8 @@ use yii\db\ActiveRecord;
  * Авторы - ФИО
  * @property integer $id
  * @property string $fio
+ *
+ * @property Book[] $books
  */
 class Author extends ActiveRecord
 {

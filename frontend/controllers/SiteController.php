@@ -4,6 +4,7 @@ namespace frontend\controllers;
 
 use frontend\models\BookForm;
 use frontend\models\Books;
+use frontend\models\SubscribeForm;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\Controller;
@@ -105,11 +106,12 @@ class SiteController extends Controller
             } else {
                 return $this->render('edit', [
                     'model' => $model,
+                    'authors' => $model->getAuthorsList(),
                 ]);
             }
         }
 
-        $model = new BookForm(['scenario' => BookForm::INIT_SCENARIO]);
+        $model = new BookForm(['scenario' => BookForm::INIT_DELETE_SCENARIO]);
         $model->load(['id' => $id_book], '');
         if ($model->validate()) {
             $model->loadBook();
@@ -119,6 +121,7 @@ class SiteController extends Controller
 
         return $this->render('edit', [
             'model' => $model,
+            'authors' => $model->getAuthorsList(),
         ]);
     }
 
@@ -129,13 +132,42 @@ class SiteController extends Controller
         }
 
         if ($id_book) {
-            $model = new BookForm(['scenario' => BookForm::INIT_SCENARIO]);
+            $model = new BookForm(['scenario' => BookForm::INIT_DELETE_SCENARIO]);
             if ($model->load(['id' => $id_book], '') && $model->validate()) {
                 $model->deleteBook();
             }
         }
 
         return $this->goHome();
+    }
+
+    public function actionSubscribe($id_author = null)
+    {
+        if (!$id_author) {
+            return $this->goHome();
+        }
+
+        if (Yii::$app->request->isPost) {
+            $model = new SubscribeForm(['scenario' => SubscribeForm::SAVE_SCENARIO]);
+
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+                $model->save();
+                return $this->goHome();
+            } else {
+                return $this->render('subscribe', [
+                    'model' => $model,
+                ]);
+            }
+        }
+
+        $model = new SubscribeForm(['scenario' => SubscribeForm::INIT_SCENARIO]);
+        $model->load(['id_author' => $id_author], '');
+        if (!$model->validate()) {
+            return $this->goHome();
+        }
+        return $this->render('subscribe', [
+            'model' => $model,
+        ]);
     }
 
     /**

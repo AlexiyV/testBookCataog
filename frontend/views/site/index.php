@@ -32,7 +32,7 @@ $this->title = 'My Yii Application';
                 <p>Авторы:</p>
                 <ul>
                 <?php foreach ($book->authors as $author): ?>
-                    <li><?= $author->fio ?></li>
+                    <li><?= $author->fio ?> <a href="/?r=site/subscribe&id_author=<?= $author->id ?>">Подписаться</a></li>
                 <?php endforeach; ?>
                 </ul>
             </div>

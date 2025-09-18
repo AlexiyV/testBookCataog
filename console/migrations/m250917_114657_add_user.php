@@ -11,7 +11,6 @@ class m250917_114657_add_user extends Migration
     public function safeUp()
     {
         $user = new User();
-        $user->id = 1;
         $user->username = 'admin';
         $user->password = 'admin';
         $user->email = 'test@test.ru';

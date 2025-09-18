@@ -2,36 +2,31 @@
 
 namespace frontend\models;
 
+use common\models\Author;
 use common\models\Book;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
 
 class BookForm extends Model
 {
-    public const INIT_SCENARIO = 'init';
+    public const INIT_DELETE_SCENARIO = 'init';
     public const SAVE_SCENARIO = 'save';
 
     public function scenarios()
     {
-//        return Model::scenarios();
         return [
-            self::INIT_SCENARIO => ['id'],
-            self::SAVE_SCENARIO => ['id', 'name', 'year', 'info', 'isbn', 'image'],
+            self::INIT_DELETE_SCENARIO => ['id'],
+            self::SAVE_SCENARIO => ['id', 'name', 'year', 'info', 'isbn', 'image', 'authors'],
         ];
     }
 
-//* @property integer $id
-//* @property string $name
-//* @property integer $year
-//* @property string $info
-//* @property string $isbn
-//* @property string $image
-    public $id;
-    public $name;
-    public $year;
-    public $info;
-    public $isbn;
-    public $image;
+    public int | null $id = null;
+    public string | null $name = null;
+    public int | null $year = null;
+    public string | null $info = null;
+    public string | null $isbn = null;
+    public string | null $image = null;
+    public array | null $authors = null;
 
     public function rules()
     {
@@ -39,6 +34,7 @@ class BookForm extends Model
             [['name', 'year', 'info', 'isbn', 'image'], 'required'],
             [['id', 'year'], 'integer'],
             [['name', 'info', 'isbn', 'image'], 'string'],
+            ['authors', 'each', 'rule' => ['integer']],
         ];
     }
 
@@ -48,7 +44,7 @@ class BookForm extends Model
             if ($this->id) {
                 $book = Book::findOne($this->id);
                 if (!$book) {
-                    // else throw exception
+                    $this->addError('id', 'Book not found');
                     return false;
                 }
             } else {
@@ -61,9 +57,16 @@ class BookForm extends Model
             $book->isbn = $this->isbn;
             $book->image = $this->image;
 
+            $book->unlinkAll('authors', true);
+            $authors = Author::find()
+                ->where(['id' => $this->authors])
+                ->all();
+            foreach ($authors as $author) {
+                $book->link('authors', $author);
+            }
+
             return $book->save();
         }
-        // else throw exception
         return false;
     }
 
@@ -77,8 +80,14 @@ class BookForm extends Model
                 $this->info = $book->info;
                 $this->isbn = $book->isbn;
                 $this->image = $book->image;
+                $this->authors = ArrayHelper::getColumn($book->authors, 'id');
             }
         }
+    }
+
+    public function getAuthorsList()
+    {
+        return ArrayHelper::map(Author::find()->all(), 'id', 'fio') ;
     }
 
     public function deleteBook()
